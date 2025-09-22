@@ -12,15 +12,11 @@ logging.basicConfig(
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
 
-# Конфигурация для работы с pass
-PASS_DIR = os.environ.get('PASS_DIR', 'wifi')  # Файл содержит только пароль
-WIFI_SSID = os.environ.get('WIFI_SSID', 'NerVV')  # SSID теперь хранится в переменной окружения
-
-def get_password_from_pass():
+def get_password_from_pass(pass_dir):
     try:
         # Получаем пароль из хранилища pass
         password = subprocess.run(
-            ['pass', 'show', PASS_DIR],
+            ['pass', 'show', pass_dir],
             capture_output=True,
             text=True,
             check=True
@@ -34,7 +30,7 @@ def check_ethernet_connection():
     try:
         # Проверяем наличие активных Ethernet-интерфейсов
         result = subprocess.run(
-            ['nmcli', 'device', 'status'],
+            ['ip', '', 'status'],
             capture_output=True,
             text=True
         )
@@ -79,6 +75,8 @@ def reconnect_wifi(interface, ssid, password):
 
 def main():
     INTERFACE = os.environ.get('WIFI_INTERFACE', 'wlx')
+    pass_dir = os.environ.get('PASS_DIR', 'wifi')  # Файл содержит только пароль
+    WIFI_SSID = os.environ.get('WIFI_SSID', 'NerVV')  # SSID теперь хранится в переменной окружения
     
     # Проверяем наличие Ethernet-подключения
     if check_ethernet_connection():
@@ -89,7 +87,7 @@ def main():
         logging.info("Wi-Fi не подключен, попытка переподключения...")
         
         ssid = WIFI_SSID
-        password = get_password_from_pass()
+        password = get_password_from_pass(pass_dir)
         
         if not ssid:
             logging.error("Не удалось получить SSID сети")
