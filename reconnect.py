@@ -1,4 +1,5 @@
-#!/usr/bin/env python3
+#!./venv/bin/python3
+
 import subprocess
 import time
 import sys
@@ -35,9 +36,9 @@ def check_ethernet_connection(interface):
             capture_output=True,
             text=True
         )
-        for line in result.stdout.splitlines():
-            print(line)
-            if 'state UP' in line.lower():
+        for line in result.stdout.splitlines():            
+            if 'state UP' in line:
+                # print(line)
                 return True
         return False
     except Exception as e:
@@ -55,7 +56,7 @@ def check_wifi_status(interface):
         for line in result.stdout.splitlines():
             if 'State' in line:
                 state = line.split()[1].strip()
-                print(state)
+                # print(state)
                 return state.lower() == 'connected'
         return False
     except Exception as e:
@@ -77,15 +78,15 @@ def reconnect_wifi(interface, ssid, password):
         logging.error(f"Ошибка при переподключении: {filtred_msg}")
 
 def main():
-    iface_redio = os.environ.get('WIFI_INTERFACE', 'wlx')
-    iface_lan = os.environ.get('LAN_INTERFACE', 'enp6s0')
-    pass_dir = os.environ.get('PASS_DIR', 'wifi')  # Файл содержит только пароль
-    ssid = os.environ.get('WIFI_SSID', 'NerVV')  # SSID теперь хранится в переменной окружения
+    iface_redio = os.environ.get('WIFI_INTERFACE', input('input yours name wifi interface: '))
+    iface_lan = os.environ.get('LAN_INTERFACE', input('input yours name lan interface: '))
+    pass_dir = os.environ.get('PASS_DIR', input('pass dir in yours wifi credentials: '))  # Файл содержит только пароль
+    ssid = os.environ.get('WIFI_SSID', input('WIFI_SSID: '))  # SSID теперь хранится в переменной окружения
     
     # Проверяем наличие Ethernet-подключения
-    if check_ethernet_connection(iface_lan):
-        logging.info("Обнаружено активное Ethernet-подключение, выход из скрипта")
-        sys.exit(0)
+    # if check_ethernet_connection(iface_lan):
+    #     logging.info("Обнаружено активное Ethernet-подключение, выход из скрипта")
+    #     sys.exit(0)
     
     if not check_wifi_status(iface_redio):
         logging.info("Wi-Fi не подключен, попытка переподключения...")       
