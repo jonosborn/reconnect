@@ -25,17 +25,19 @@ def get_password_from_pass(pass_dir):
     except Exception as e:
         logging.error(f"Ошибка при получении пароля: {e}")
         return None
+# print(get_password_from_pass(pass_dir='wifi'))
 
-def check_ethernet_connection():
+def check_ethernet_connection(interface):
     try:
         # Проверяем наличие активных Ethernet-интерфейсов
         result = subprocess.run(
-            ['ip', '', 'status'],
+            ['ip', 'link', 'show', interface ],
             capture_output=True,
             text=True
         )
         for line in result.stdout.splitlines():
-            if 'ethernet' in line.lower() and 'connected' in line.lower():
+            print(line)
+            if 'state UP' in line.lower():
                 return True
         return False
     except Exception as e:
@@ -74,19 +76,19 @@ def reconnect_wifi(interface, ssid, password):
         logging.error(f"Ошибка при переподключении: {filtred_msg}")
 
 def main():
-    INTERFACE = os.environ.get('WIFI_INTERFACE', 'wlx')
+    iface_redio = os.environ.get('WIFI_INTERFACE', 'wlx')
+    iface_lan = os.environ.get('LAN_INTERFACE', 'enp6s0')
     pass_dir = os.environ.get('PASS_DIR', 'wifi')  # Файл содержит только пароль
-    WIFI_SSID = os.environ.get('WIFI_SSID', 'NerVV')  # SSID теперь хранится в переменной окружения
+    ssid = os.environ.get('WIFI_SSID', 'NerVV')  # SSID теперь хранится в переменной окружения
     
     # Проверяем наличие Ethernet-подключения
-    if check_ethernet_connection():
+    if check_ethernet_connection(iface_lan):
         logging.info("Обнаружено активное Ethernet-подключение, выход из скрипта")
         sys.exit(0)
     
-    if not check_wifi_status(INTERFACE):
-        logging.info("Wi-Fi не подключен, попытка переподключения...")
+    if not check_wifi_status(iface_redio):
+        logging.info("Wi-Fi не подключен, попытка переподключения...")       
         
-        ssid = WIFI_SSID
         password = get_password_from_pass(pass_dir)
         
         if not ssid:
