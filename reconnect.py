@@ -55,6 +55,7 @@ def check_wifi_status(interface):
         for line in result.stdout.splitlines():
             if 'State' in line:
                 state = line.split()[1].strip()
+                print(state)
                 return state.lower() == 'connected'
         return False
     except Exception as e:
@@ -100,9 +101,9 @@ def main():
         if not password:
             logging.warning("Пароль не найден, будет попытка подключения без пароля")
         
-        reconnect_wifi(INTERFACE, ssid, password)
+        reconnect_wifi(iface_redio, ssid, password)
         
-        if check_wifi_status(INTERFACE):
+        if check_wifi_status(iface_redio):
             logging.info("Подключение успешно восстановлено")
         else:
             logging.error("Не удалось восстановить подключение")
